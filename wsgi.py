@@ -53,6 +53,17 @@ async def getGithubPfp():
             return jsonify({"code":"200","image":b64String.decode('utf-8')})
         else:
             return jsonify({"code": "400", "message": "please provide github username"})
+
+@app.route('/api/github/langs')
+async def getGithubMostUsedLangs():
+    async with aiohttp.ClientSession() as session:
+        username = request.args.get("username")
+        if not username is None:
+            info = GithubInfo(username)
+            langs = await info.getLangs(session)
+            return jsonify(langs)
+        else:
+            return jsonify({"code": "400", "message": "please provide github username"})
             
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
