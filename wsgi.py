@@ -50,7 +50,7 @@ async def getGithubPfp():
         if not username is None:
             info = GithubInfo(username)
             b64String = await info.getpfp(session)
-            return b64String
+            return jsonify({"code":"200","image":b64String.decode("utf-8") })
         else:
             return jsonify({"code": "400", "message": "please provide github username"})
             
