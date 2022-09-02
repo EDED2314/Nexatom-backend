@@ -34,7 +34,7 @@ async def getStackoverflowBadges():
 async def getStackoverflowTags():
     # you need uhh user_url
     async with aiohttp.ClientSession() as session:
-        userUrl = request.args.get("userUrl")
+        userUrl = request.args.get("userurl")
         if not userUrl is None:
             info = StackoverflowInfo(userUrl)
             tags = await info.findTags(session)
