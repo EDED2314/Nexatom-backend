@@ -4,6 +4,7 @@ import os
 import json
 from flask_cors import CORS
 from scrapers.stackoverflow.stackoverflow import StackoverflowInfo
+from scrapers.github.github import GithubInfo
 
 
 app = Flask(__name__, template_folder="templates")
@@ -17,7 +18,7 @@ def home():
     return "hello word"
 
 
-@app.route("/api/getBadges", methods=["GET"])
+@app.route("/api/stackoverflow/getBadges", methods=["GET"])
 async def getStackoverflowBadges():
     # you need uhh user_url
     async with aiohttp.ClientSession() as session:
@@ -30,7 +31,7 @@ async def getStackoverflowBadges():
             return jsonify({"code": "400", "message": "please provide stackoverflow user url"})
 
 
-@app.route("/api/getTags", methods=["GET"])
+@app.route("/api/stackoverflow/getTags", methods=["GET"])
 async def getStackoverflowTags():
     # you need uhh user_url
     async with aiohttp.ClientSession() as session:
@@ -42,5 +43,16 @@ async def getStackoverflowTags():
         else:
             return jsonify({"code": "400", "message": "please provide stackoverflow user url"})
         
+@app.route("/api/github/pfp")
+async def getGithubPfp():
+    async with aiohttp.ClientSession() as session:
+        username = request.args.get("username")
+        if not username is None:
+            info = GithubInfo(username)
+            b64String = await info.getpfp(session)
+            return b64String
+        else:
+            return jsonify({"code": "400", "message": "please provide github username"})
+            
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
