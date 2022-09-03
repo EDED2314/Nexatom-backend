@@ -73,7 +73,7 @@ async def getGithubMostUsedLangs():
         else:
             return jsonify({"code": "400", "message": "please provide github username"})
             
-@app.route('/api/algo/storeData', methods=["POST"])
+@app.route('/api/algo/storeData', methods=["GET"])
 async def createThenStoreProcessedUserData():
     experience = int(request.args.get("exp"))
     id = str(request.args.get("id"))
