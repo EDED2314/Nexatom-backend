@@ -15,7 +15,19 @@ class GitSoup(BeautifulSoup):
         for info in infos:
             gs = info.find_all("g", recursive = False)
             for g in gs:
-                langs.append(str(g.text).replace("\n", "").replace("\r", "").strip())
+                thing = str(g.text).replace("\n", "").replace("\r", "").strip().strip("%")
+                idx = None
+                for i in range(len(thing)):
+                    try:
+                        if thing[-(i+1)] != ".":
+                            float(thing[-(i+1)])
+                    except ValueError:
+                        idx = -(i+1)
+                        break
+                    
+                print(thing[0:idx])
+                print(thing[idx:len(thing)-1])
+                langs.append({thing[0:idx].strip(): thing[idx:len(thing)-1].strip()})
         
         return langs
                 
