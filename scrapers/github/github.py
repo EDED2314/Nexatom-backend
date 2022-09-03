@@ -4,9 +4,6 @@ from  scrapers.github.gitsoup import GitSoup
 import json
 import base64
 
-
-
-
 class GithubInfo():
     def __init__(self, username:str):
         self.username = username
