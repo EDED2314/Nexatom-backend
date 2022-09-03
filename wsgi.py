@@ -1,3 +1,4 @@
+from gettext import find
 from flask import Flask, jsonify, request, render_template
 import aiohttp
 import os
@@ -6,7 +7,7 @@ from flask_cors import CORS
 from algorithms.recommendation import predict
 from scrapers.stackoverflow.stackoverflow import StackoverflowInfo
 from scrapers.github.github import GithubInfo
-from algorithms.database_com import updateUsers,Atom
+from algorithms.database_com import updateUser,Atom, findRec
 
 app = Flask(__name__, template_folder="templates")
 app.config["SECRET_KEY"] = f"{os.urandom(24).hex()}"
@@ -73,8 +74,9 @@ async def getGithubMostUsedLangs():
             return jsonify({"code": "400", "message": "please provide github username"})
             
 @app.route('/api/algo/storeData', methods=["POST"])
-def createThenStoreProcessedUserData():
+async def createThenStoreProcessedUserData():
     experience = int(request.args.get("exp"))
+    id = str(request.args.get("id"))
     timezone = request.args.get("tz")
     lang1 = request.args.get("lang1")
     lang1 = lang1.replace("\'", "\"")
@@ -84,9 +86,23 @@ def createThenStoreProcessedUserData():
     lang3 = lang1.replace("\'", "\"")
     majors = request.args.get("majors")
     atom1 = Atom(experience, timezone, json.loads(lang1), json.loads(lang2), json.loads(lang3), majors, 0.5)
-    atom2 = Atom(10, "GMT+10.5", {"python":"40"}, {"rust":"20"}, {"dart":"10"}, ["computer science", "mathematics"],0.5)
-    x = predict(atom1, atom2)
-    return jsonify({"code":"200", "message":"success", "sim":x})
+    # atom2 = Atom(10, "GMT+10.5", {"python":"40"}, {"rust":"20"}, {"dart":"10"}, ["computer science", "mathematics"],0.5)\
+    if not id is None:
+        await updateUser(atom1, id)
+        return jsonify({"code":"200", "message":"success"})
+    else:
+        return jsonify({"code": "400", "message": "error"})
+    
+@app.route("/api/algo/rec", methods=["GET"])
+async def getRecommendations():
+    _id = str(request.args.get("id"))
+    
+    if not _id is None:
+        ids = await findRec(_id)
+        return jsonify({"code":"200", "message":"success", "ids": ids})
+    else:
+        return jsonify({"code": "400", "message": "error"})
+    
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
